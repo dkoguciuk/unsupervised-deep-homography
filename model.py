@@ -5,6 +5,7 @@ import kornia
 
 
 def photometric_loss(delta, img_a, patch_b, corners):
+
     corners_hat = corners + delta
 
     # in order to apply transform and center crop,
@@ -17,6 +18,20 @@ def photometric_loss(delta, img_a, patch_b, corners):
     patch_b_hat = kornia.warp_perspective(img_a, h_inv, (128, 128))
 
     return F.l1_loss(patch_b_hat, patch_b)
+
+
+def ihome_loss(delta, img_a, patch_b, corners):
+
+    # Extract patch_a
+    width = corners[0, 1, 0] - corners[0, 0, 0]
+    height = corners[0, 2, 1] - corners[0, 0, 1]
+    patch_a = kornia.geometry.transform.crop.crop2d.crop_and_resize(img_a, corners, (height, width))
+
+    # Loss function
+    loss_network = kornia.losses.bihome.LossNetwork()
+    loss_network.to(patch_a.device)
+    loss = kornia.losses.bihome.ihome_loss(patch_a, patch_b, delta, loss_network)
+    return loss
 
 
 class Flatten(nn.Module):
