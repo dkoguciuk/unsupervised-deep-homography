@@ -28,9 +28,9 @@ def ihome_loss(delta, img_a, patch_b, corners):
     patch_a = kornia.geometry.transform.crop.crop2d.crop_and_resize(img_a, corners, (height, width))
 
     # Loss function
-    loss_network = kornia.losses.bihome.LossNetwork()
+    loss_network = kornia.losses.perceptual.LossNetwork()
     loss_network.to(patch_a.device)
-    loss = kornia.losses.bihome.ihome_loss(patch_a, patch_b, delta, loss_network)
+    loss = kornia.losses.perceptual.ihome_loss(patch_a, patch_b, delta, loss_network)
     return loss
 
 

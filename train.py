@@ -11,11 +11,13 @@ import model
 
 
 class HomographyModel(pl.LightningModule):
-    def __init__(self, hparams):
+    def __init__(self, hparams=None):
         super(HomographyModel, self).__init__()
-        self.save_hyperparameters(hparams)
-        if hasattr(hparams, 'loss'):
-            self.loss_fn = getattr(model, hparams.loss)
+        if hparams is not None:
+            self.save_hyperparameters(hparams)
+            if type(hparams) != dict:
+                hparams = vars(hparams)
+            self.loss_fn = getattr(model, hparams['loss'])
         self.model = model.Net()
 
     def forward(self, a, b):
@@ -64,7 +66,7 @@ class HomographyModel(pl.LightningModule):
 
 
 def main(args):
-    if args.resume is not "":
+    if args.resume:
         model = HomographyModel.load_from_checkpoint(args.resume)
     else:
         model = HomographyModel(hparams=args)
